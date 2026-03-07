@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dados para Entrega</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:#0f0800;font-family:'Cormorant Garamond',Georgia,serif;color:#fff0e6;display:flex;align-items:center;justify-content:center;padding:24px}
+#root{width:100%;display:flex;justify-content:center}
+#loading{text-align:center;color:#ff6a00;font-family:'DM Mono',monospace;font-size:14px;letter-spacing:2px}
+.spinner{width:36px;height:36px;border:2px solid #3d2200;border-top-color:#ff6a00;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeDown .5s ease both}
+#form-page,#owner-page,#thanks-page,#nolink-page{display:none;width:100%}
+#form-page{max-width:560px}
+#owner-page,#thanks-page,#nolink-page{max-width:640px}
+.intro{text-align:center;margin-bottom:28px}
+.intro .badge{display:inline-block;background:rgba(255,106,0,.08);border:1px solid rgba(255,106,0,.3);border-radius:14px;padding:16px 32px}
+.intro p{color:#ff9a4d;font-size:16px;line-height:1.7}
+.intro strong{color:#ff6a00}
+.card{background:linear-gradient(160deg,#1a0f00,#211300);border:1px solid #3d2200;border-radius:20px;padding:36px 32px;box-shadow:0 24px 80px rgba(0,0,0,.6);transition:opacity .28s ease,transform .28s ease}
+.card.out{opacity:0;transform:translateY(12px)}
+.prow{display:flex;justify-content:space-between;margin-bottom:8px}
+.prow span{font-family:'DM Mono',monospace;font-size:12px}
+.plabel{color:#6a4020;letter-spacing:1px}
+.ppct{color:#ff6a00}
+.ptrack{height:3px;background:#1a0f00;border:1px solid #3d2200;border-radius:2px;margin-bottom:28px;overflow:hidden}
+.pfill{height:100%;background:linear-gradient(90deg,#ff6a00,#ff9a4d);border-radius:2px;transition:width .4s ease}
+.shead{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.sicon{font-size:22px}
+.slabel{color:#ff9a4d;font-size:19px;font-weight:400}
+.optag{color:#6a4020;font-size:13px;margin-left:6px}
+input.fi{width:100%;padding:14px 16px;background:#150a00;border:1px solid #2a1800;border-radius:10px;color:#fff0e6;font-size:16px;font-family:'Cormorant Garamond',Georgia,serif;outline:none;transition:border .2s}
+input.fi:focus{border-color:#ff6a00}
+input.fi.err{border-color:#e07070}
+.opts{display:flex;flex-direction:column;gap:8px}
+.obtn{padding:13px 18px;background:#150a00;border:1px solid #2a1800;border-radius:10px;color:#8a6040;font-size:15px;font-family:'Cormorant Garamond',Georgia,serif;cursor:pointer;text-align:left;transition:all .2s}
+.obtn:hover{border-color:#3d2200;color:#fff0e6}
+.obtn.sel{background:rgba(255,106,0,.12);border-color:#ff6a00;color:#ff9a4d}
+.emsg{color:#e07070;font-size:13px;margin-top:8px;font-family:'DM Mono',monospace}
+.brow{display:flex;gap:10px;margin-top:28px}
+.bbk{padding:13px 20px;background:transparent;border:1px solid #3d2200;border-radius:10px;color:#8a6040;font-size:16px;cursor:pointer;font-family:'Cormorant Garamond',Georgia,serif;transition:all .2s}
+.bbk:hover{border-color:#6a4020;color:#fff0e6}
+.bnx{flex:1;padding:13px;background:linear-gradient(135deg,#ff6a00,#ff9a4d);border:none;border-radius:10px;color:#fff;font-weight:600;font-size:16px;cursor:pointer;font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:.5px;transition:opacity .2s}
+.bnx:hover{opacity:.88}
+.sh{text-align:center;margin-bottom:32px}
+.sh .ck{font-size:52px;margin-bottom:12px}
+.sh h1{color:#ff9a4d;font-size:26px;font-weight:400;letter-spacing:1px}
+.sh p{color:#8a6040;font-size:14px;margin-top:8px;font-family:'DM Mono',monospace}
+.sc{background:linear-gradient(160deg,#1a0f00,#211300);border:1px solid #3d2200;border-radius:20px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.7)}
+.sch{background:rgba(255,106,0,.1);border-bottom:1px solid #3d2200;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
+.sch .t{color:#ff6a00;font-size:13px;letter-spacing:2px;font-weight:700;font-family:'DM Mono',monospace}
+.scb{padding:24px 28px}
+.stitle{color:#5a3010;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;margin:0 0 10px}
+.stitle.gap{margin-top:20px}
+.fr{display:flex;align-items:center;padding:11px 14px;border-radius:10px;background:#150a00;border:1px solid #2a1800;margin-bottom:6px;gap:12px}
+.fi2{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.fl{color:#6a4020;font-size:12px;width:130px;flex-shrink:0;font-family:'DM Mono',monospace}
+.fv{color:#ffe0c0;font-size:15px;flex:1}
+.cbtn{padding:5px 12px;font-size:11px;border-radius:6px;cursor:pointer;font-family:'DM Mono',monospace;background:#1a0f00;border:1px solid #3d2200;color:#8a6040;transition:all .2s;flex-shrink:0}
+.cbtn:hover{border-color:#ff6a00;color:#ff6a00}
+.cbtn.ok{background:#1a3a1a;border-color:#4caf50;color:#4caf50}
+.sf{border-top:1px solid #3d2200;padding:20px 28px;display:flex;gap:12px}
+.bca{flex:1;padding:14px;background:linear-gradient(135deg,#ff6a00,#ff9a4d);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;font-family:'Cormorant Garamond',Georgia,serif;transition:opacity .2s}
+.bca:hover{opacity:.88}
+.sov{position:fixed;inset:0;background:rgba(15,8,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;font-family:'DM Mono',monospace;color:#ff6a00;font-size:14px;letter-spacing:2px}
+@media(max-width:480px){.card{padding:28px 20px}.fl{width:90px;font-size:11px}.scb{padding:18px 16px}.sf{padding:16px;flex-direction:column}.sch{padding:14px 16px;flex-wrap:wrap;gap:8px}}
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="loading"><div class="spinner"></div>CARREGANDO...</div>
+  <div id="nolink-page"><div class="card" style="text-align:center"><h2 style="color:#ff9a4d;font-size:22px;font-weight:400;margin-bottom:16px">⚠️ Link inválido</h2><p style="color:#8a6040;font-size:14px;line-height:1.8;font-family:'DM Mono',monospace">Adicione o nome do cliente no link:<br/><br/><strong style="color:#ff6a00">?cliente=NomeDoCliente</strong></p></div></div>
+  <div id="form-page"></div>
+  <div id="owner-page"></div>
+  <div id="thanks-page"></div>
+</div>
+<script>
+var API="$2a$10$Rkfhr.9b5AqZmiX0um1vLuRMRLkmgr2DuIiwtCTfqxox065M9AWu.";
+var BASE="https://api.jsonbin.io/v3/b";
+var STEPS=[
+  {id:1,label:"Nome Completo",icon:"👤",type:"text",ph:"Ex: João Silva Santos",validate:function(v){return v.trim().split(" ").filter(Boolean).length>=2?"":"Digite seu nome completo"}},
+  {id:2,label:"CPF",icon:"🪪",type:"text",ph:"000.000.000-00",mask:"cpf",validate:function(v){return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(v)?"":"CPF inválido"}},
+  {id:3,label:"Número de Telefone",icon:"📱",type:"text",ph:"(00) 00000-0000",mask:"phone",validate:function(v){return /^\(\d{2}\) \d{4,5}-\d{4}$/.test(v)?"":"Telefone inválido"}},
+  {id:4,label:"E-mail Válido",icon:"📧",type:"email",ph:"seuemail@exemplo.com",validate:function(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)?"":"E-mail inválido"}},
+  {id:5,label:"CEP",icon:"📮",type:"text",ph:"00000-000",mask:"cep",validate:function(v){return /^\d{5}-\d{3}$/.test(v)?"":"CEP inválido"}},
+  {id:6,label:"Nome da Rua",icon:"🛣️",type:"text",ph:"Ex: Rua das Flores",validate:function(v){return v.trim().length>=3?"":"Informe o nome da rua"}},
+  {id:7,label:"Número",icon:"🔢",type:"text",ph:"Ex: 123 ou S/N",validate:function(v){return v.trim().length>=1?"":"Informe o número"}},
+  {id:8,label:"Complemento",icon:"🏠",type:"text",ph:"Ex: Apto 12, Bloco B (opcional)",optional:true,validate:function(){return""}},
+  {id:9,label:"Bairro",icon:"🏘️",type:"text",ph:"Ex: Centro",validate:function(v){return v.trim().length>=2?"":"Informe o bairro"}},
+  {id:10,label:"Cidade",icon:"🏙️",type:"text",ph:"Ex: São Paulo",validate:function(v){return v.trim().length>=2?"":"Informe a cidade"}},
+  {id:11,label:"Como você nos conheceu?",icon:"📣",type:"select",opts:["Instagram","Facebook","Google","Indicação de amigo/familiar","WhatsApp","Outro"],validate:function(v){return v?"":"Selecione uma opção"}},
+  {id:12,label:"Você já comprou conosco?",icon:"🛍️",type:"select",opts:["Sim, já comprei antes","Não, é minha primeira compra"],validate:function(v){return v?"":"Selecione uma opção"}}
+];
+var cur=0,vals={},clientId="",binId=null;
+
+function mask(v,m){
+  var d=v.replace(/\D/g,"");
+  if(m==="cpf"){var r=d.slice(0,3);if(d.length>3)r+="."+d.slice(3,6);if(d.length>6)r+="."+d.slice(6,9);if(d.length>9)r+="-"+d.slice(9,11);return r;}
+  if(m==="phone"){if(!d.length)return"";var lg=d.length>10;var r="("+d.slice(0,2);if(d.length>2)r+=") "+d.slice(2,lg?7:6);if(d.length>(lg?6:5))r+="-"+d.slice(lg?7:6,lg?11:10);return r;}
+  if(m==="cep"){var r=d.slice(0,5);if(d.length>5)r+="-"+d.slice(5,8);return r;}
+  return v;
+}
+function show(id){document.getElementById(id).style.display="block";}
+function hide(id){document.getElementById(id).style.display="none";}
+
+async function findBin(name){
+  try{var r=await fetch(BASE+"?meta=true",{headers:{"X-Master-Key":API}});var d=await r.json();if(Array.isArray(d)){var f=d.find(function(b){return b.snippetMeta&&b.snippetMeta.name===name;});return f?f.snippetMeta.id:null;}}catch(e){}
+  return null;
+}
+async function loadBin(id){var r=await fetch(BASE+"/"+id+"/latest",{headers:{"X-Master-Key":API}});var d=await r.json();return d.record||null;}
+async function createBin(name,rec){var r=await fetch(BASE,{method:"POST",headers:{"Content-Type":"application/json","X-Master-Key":API,"X-Bin-Name":name,"X-Bin-Private":"false"},body:JSON.stringify(rec)});var d=await r.json();return d.metadata?d.metadata.id:null;}
+async function updateBin(id,rec){await fetch(BASE+"/"+id,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":API},body:JSON.stringify(rec)});}
+
+async function init(){
+  var p=new URLSearchParams(window.location.search);
+  clientId=(p.get("cliente")||p.get("id")||"").trim();
+  if(!clientId){hide("loading");show("nolink-page");return;}
+  var id=await findBin(clientId);
+  if(id){binId=id;var rec=await loadBin(id);if(rec&&rec.filled){hide("loading");renderOwner(rec.values,rec.filledAt);return;}}
+  hide("loading");show("form-page");renderStep();
+}
+
+function renderStep(){
+  var step=STEPS[cur];
+  var pct=Math.round((cur/STEPS.length)*100);
+  var intro=cur===0?'<div class="intro fade-in"><div class="badge"><p>Esses são os dados para gerarmos<br/><strong>sua NF e fazer a entrega</strong> 📦</p></div></div>':'';
+  var field='';
+  if(step.type==="select"){
+    var btns=step.opts.map(function(o){var s=vals[step.id]===o;return'<button class="obtn'+(s?' sel':'')+'" onclick="selOpt(\''+o.replace(/'/g,"\\'")+'\')"> '+(s?'✓  ':'    ')+o+'</button>';}).join('');
+    field='<div class="opts">'+btns+'</div>';
+  }else{
+    var v=(vals[step.id]||'').replace(/"/g,'&quot;');
+    field='<input class="fi" id="inp" type="'+step.type+'" placeholder="'+step.ph+'" value="'+v+'" oninput="onInp(this.value)" onkeydown="if(event.key===\'Enter\')nxt()" autofocus/>';
+  }
+  var back=cur>0?'<button class="bbk" onclick="prv()">←</button>':'';
+  var nl=cur===STEPS.length-1?'Finalizar ✓':'Próximo →';
+  document.getElementById('form-page').innerHTML=intro+'<div class="card" id="mc"><div class="prow"><span class="plabel">PASSO '+(cur+1)+' DE '+STEPS.length+'</span><span class="ppct">'+pct+'%</span></div><div class="ptrack"><div class="pfill" style="width:'+pct+'%"></div></div><div class="shead"><span class="sicon">'+step.icon+'</span><span class="slabel">'+step.label+(step.optional?'<span class="optag">(opcional)</span>':'')+'</span></div>'+field+'<div id="em"></div><div class="brow">'+back+'<button class="bnx" onclick="nxt()">'+nl+'</button></div></div>';
+}
+
+function onInp(v){var step=STEPS[cur];vals[step.id]=step.mask?mask(v,step.mask):v;var el=document.getElementById('inp');if(el)el.value=vals[step.id];document.getElementById('em').innerHTML='';}
+function selOpt(o){vals[STEPS[cur].id]=o;renderStep();}
+
+function nxt(){
+  var step=STEPS[cur];var err=step.validate(vals[step.id]||'');
+  if(err){document.getElementById('em').innerHTML='<p class="emsg">'+err+'</p>';var el=document.getElementById('inp');if(el)el.classList.add('err');return;}
+  var mc=document.getElementById('mc');if(mc)mc.classList.add('out');
+  setTimeout(function(){if(cur<STEPS.length-1){cur++;renderStep();}else save();},280);
+}
+function prv(){var mc=document.getElementById('mc');if(mc)mc.classList.add('out');setTimeout(function(){cur--;renderStep();},200);}
+
+async function save(){
+  var ov=document.createElement('div');ov.className='sov';ov.innerHTML='<div class="spinner"></div>SALVANDO DADOS...';document.body.appendChild(ov);
+  var rec={filled:true,clientId:clientId,filledAt:new Date().toLocaleString('pt-BR'),values:Object.assign({},vals)};
+  try{if(binId)await updateBin(binId,rec);else binId=await createBin(clientId,rec);}catch(e){console.error(e);}
+  document.body.removeChild(ov);hide('form-page');
+  document.getElementById('thanks-page').innerHTML='<div class="card fade-in" style="text-align:center;max-width:480px;margin:0 auto"><div style="font-size:52px;margin-bottom:16px">🎉</div><h2 style="color:#ff9a4d;font-size:24px;font-weight:400;margin-bottom:12px">Dados enviados!</h2><p style="color:#8a6040;font-size:14px;line-height:1.8;font-family:\'DM Mono\',monospace">Recebemos suas informações com sucesso.<br/>Em breve entraremos em contato<br/>para confirmar seu pedido. 😊</p></div>';
+  show('thanks-page');
+}
+
+function renderOwner(v,at){
+  var sections=[
+    {title:'Dados Pessoais',fields:[{icon:'👤',label:'Nome',val:v[1]},{icon:'🪪',label:'CPF',val:v[2]},{icon:'📱',label:'Telefone',val:v[3]},{icon:'📧',label:'E-mail',val:v[4]}]},
+    {title:'Endereço de Entrega',fields:[{icon:'📮',label:'CEP',val:v[5]},{icon:'🛣️',label:'Rua',val:(v[6]||'')+', Nº '+(v[7]||'')},{icon:'🏠',label:'Complemento',val:v[8]||'—'},{icon:'🏘️',label:'Bairro',val:v[9]},{icon:'🏙️',label:'Cidade',val:v[10]}]},
+    {title:'Informações Adicionais',fields:[{icon:'📣',label:'Como conheceu',val:v[11]},{icon:'🛍️',label:'Compra anterior',val:v[12]}]}
+  ];
+  var body='';
+  sections.forEach(function(sec,si){
+    body+='<p class="stitle'+(si>0?' gap':'')+'">'+sec.title+'</p>';
+    sec.fields.forEach(function(f,fi){
+      var uid='c'+si+'_'+fi;var safe=(f.val||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      body+='<div class="fr"><span class="fi2">'+f.icon+'</span><span class="fl">'+f.label+'</span><span class="fv">'+(f.val||'—')+'</span><button class="cbtn" id="'+uid+'" onclick="cpf(\''+safe+'\',\''+uid+'\')">Copiar</button></div>';
+    });
+  });
+  var full="━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  DADOS DO CLIENTE: "+clientId.toUpperCase()+"\n  Preenchido em: "+at+"\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n👤  Nome:           "+(v[1]||'—')+"\n🪪  CPF:            "+(v[2]||'—')+"\n📱  Telefone:       "+(v[3]||'—')+"\n📧  E-mail:         "+(v[4]||'—')+"\n\n━━ ENDEREÇO ━━━━━━━━━━━━━━━━━\n\n📮  CEP:            "+(v[5]||'—')+"\n🛣️  Rua:            "+(v[6]||'—')+", Nº "+(v[7]||'—')+"\n🏠  Complemento:    "+(v[8]||'—')+"\n🏘️  Bairro:         "+(v[9]||'—')+"\n🏙️  Cidade:         "+(v[10]||'—')+"\n\n━━ INFORMAÇÕES ━━━━━━━━━━━━━━\n\n📣  Como nos conheceu:  "+(v[11]||'—')+"\n🛍️  Compra anterior:    "+(v[12]||'—')+"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+  window._full=full;
+  document.getElementById('owner-page').innerHTML='<div class="sh fade-in"><div class="ck">✅</div><h1>Dados de '+clientId+'</h1><p>Preenchido em '+at+'</p></div><div class="sc fade-in"><div class="sch"><span class="t">RESUMO DO PEDIDO</span><button class="cbtn" id="cph" onclick="cpAll()">Copiar tudo</button></div><div class="scb">'+body+'</div><div class="sf"><button class="bca" onclick="cpAll()">📋 Copiar Tudo</button></div></div>';
+  show('owner-page');
+}
+
+function cpf(text,id){navigator.clipboard.writeText(text).then(function(){var b=document.getElementById(id);if(!b)return;b.textContent='✓ Copiado!';b.classList.add('ok');setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok');},2000);});}
+function cpAll(){navigator.clipboard.writeText(window._full||'').then(function(){var b=document.getElementById('cph');if(!b)return;b.textContent='✓ Copiado!';b.classList.add('ok');setTimeout(function(){b.textContent='Copiar tudo';b.classList.remove('ok');},2000);});}
+
+init();
+</script>
+</body>
+</html>
