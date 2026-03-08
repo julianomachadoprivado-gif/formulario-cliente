@@ -66,6 +66,7 @@ input.fi.err{border-color:#e07070}
 .sf{border-top:1px solid #3d2200;padding:20px 28px;display:flex;gap:12px}
 .bca{flex:1;padding:14px;background:linear-gradient(135deg,#ff6a00,#ff9a4d);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;font-family:'Cormorant Garamond',Georgia,serif;transition:opacity .2s}
 .bca:hover{opacity:.88}
+.sov{position:fixed;inset:0;background:rgba(15,8,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;font-family:'DM Mono',monospace;color:#ff6a00;font-size:14px;letter-spacing:2px}
 @media(max-width:480px){.card{padding:28px 20px}.fl{width:90px;font-size:11px}.scb{padding:18px 16px}.sf{padding:16px;flex-direction:column}.sch{padding:14px 16px;flex-wrap:wrap;gap:8px}}
 </style>
 </head>
@@ -78,6 +79,7 @@ input.fi.err{border-color:#e07070}
   <div id="thanks-page"></div>
 </div>
 <script>
+var GAS_URL="https://script.google.com/macros/s/AKfycbyXxG5WDvcnBebJDaihX-IBhzzBl3QEiUwyrEY9D7sn1q9W9DRkWibM7c67apNuCfse/exec";
 var STEPS=[
   {id:1,label:"Nome Completo",icon:"👤",type:"text",ph:"Ex: João Silva Santos",validate:function(v){return v.trim().split(" ").filter(Boolean).length>=2?"":"Digite seu nome completo"}},
   {id:2,label:"CPF",icon:"🪪",type:"text",ph:"000.000.000-00",mask:"cpf",validate:function(v){return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(v)?"":"CPF inválido"}},
@@ -101,30 +103,19 @@ function maskVal(v,m){
   if(m==="cep"){var r=d.slice(0,5);if(d.length>5)r+="-"+d.slice(5,8);return r;}
   return v;
 }
-
 function show(id){document.getElementById(id).style.display="block";}
 function hide(id){document.getElementById(id).style.display="none";}
 
-function saveLocal(key,data){
-  try{localStorage.setItem("form_"+key,JSON.stringify(data));}catch(e){}
-}
-
-function loadLocal(key){
-  try{var d=localStorage.getItem("form_"+key);return d?JSON.parse(d):null;}catch(e){return null;}
-}
-
-function init(){
+async function init(){
   var p=new URLSearchParams(window.location.search);
   clientId=(p.get("cliente")||p.get("id")||"").trim();
-  hide("loading");
-  if(!clientId){show("nolink-page");return;}
-  var saved=loadLocal(clientId);
-  if(saved&&saved.filled){
-    renderOwner(saved.values,saved.filledAt);
-    return;
-  }
-  show("form-page");
-  renderStep();
+  if(!clientId){hide("loading");show("nolink-page");return;}
+  try{
+    var r=await fetch(GAS_URL+"?cliente="+encodeURIComponent(clientId));
+    var d=await r.json();
+    if(d.found){hide("loading");renderOwner(d.values,d.filledAt);return;}
+  }catch(e){console.error("Erro ao buscar:",e);}
+  hide("loading");show("form-page");renderStep();
 }
 
 function renderStep(){
@@ -155,10 +146,16 @@ function nxt(){
 }
 function prv(){var mc=document.getElementById('mc');if(mc)mc.classList.add('out');setTimeout(function(){cur--;renderStep();},200);}
 
-function save(){
+async function save(){
+  var ov=document.createElement('div');ov.className='sov';ov.innerHTML='<div class="spinner"></div>SALVANDO DADOS...';document.body.appendChild(ov);
   var at=new Date().toLocaleString('pt-BR');
-  var rec={filled:true,clientId:clientId,filledAt:at,values:JSON.parse(JSON.stringify(vals))};
-  saveLocal(clientId,rec);
+  try{
+    await fetch(GAS_URL,{
+      method:'POST',
+      body:JSON.stringify({clientId:clientId,filledAt:at,values:vals})
+    });
+  }catch(e){console.error("Erro ao salvar:",e);}
+  document.body.removeChild(ov);
   hide('form-page');
   document.getElementById('thanks-page').innerHTML='<div class="card fade-in" style="text-align:center;max-width:480px;margin:0 auto"><div style="font-size:52px;margin-bottom:16px">🎉</div><h2 style="color:#ff9a4d;font-size:24px;font-weight:400;margin-bottom:12px">Dados enviados!</h2><p style="color:#8a6040;font-size:14px;line-height:1.8;font-family:\'DM Mono\',monospace">Recebemos suas informações com sucesso.<br/>Em breve entraremos em contato<br/>para confirmar seu pedido. 😊</p></div>';
   show('thanks-page');
