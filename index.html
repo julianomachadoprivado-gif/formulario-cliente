@@ -66,7 +66,6 @@ input.fi.err{border-color:#e07070}
 .sf{border-top:1px solid #3d2200;padding:20px 28px;display:flex;gap:12px}
 .bca{flex:1;padding:14px;background:linear-gradient(135deg,#ff6a00,#ff9a4d);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;font-family:'Cormorant Garamond',Georgia,serif;transition:opacity .2s}
 .bca:hover{opacity:.88}
-.sov{position:fixed;inset:0;background:rgba(15,8,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;font-family:'DM Mono',monospace;color:#ff6a00;font-size:14px;letter-spacing:2px}
 @media(max-width:480px){.card{padding:28px 20px}.fl{width:90px;font-size:11px}.scb{padding:18px 16px}.sf{padding:16px;flex-direction:column}.sch{padding:14px 16px;flex-wrap:wrap;gap:8px}}
 </style>
 </head>
@@ -79,8 +78,6 @@ input.fi.err{border-color:#e07070}
   <div id="thanks-page"></div>
 </div>
 <script>
-var API="$2a$10$Rkfhr.9b5AqZmiX0um1vLuRMRLkmgr2DuIiwtCTfqxox065M9AWu.";
-var BASE="https://api.jsonbin.io/v3/b";
 var STEPS=[
   {id:1,label:"Nome Completo",icon:"👤",type:"text",ph:"Ex: João Silva Santos",validate:function(v){return v.trim().split(" ").filter(Boolean).length>=2?"":"Digite seu nome completo"}},
   {id:2,label:"CPF",icon:"🪪",type:"text",ph:"000.000.000-00",mask:"cpf",validate:function(v){return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(v)?"":"CPF inválido"}},
@@ -95,7 +92,7 @@ var STEPS=[
   {id:11,label:"Como você nos conheceu?",icon:"📣",type:"select",opts:["Instagram","Facebook","Google","Indicação de amigo/familiar","WhatsApp","Outro"],validate:function(v){return v?"":"Selecione uma opção"}},
   {id:12,label:"Você já comprou conosco?",icon:"🛍️",type:"select",opts:["Sim, já comprei antes","Não, é minha primeira compra"],validate:function(v){return v?"":"Selecione uma opção"}}
 ];
-var cur=0,vals={},clientId="",binId=null;
+var cur=0,vals={},clientId="";
 
 function maskVal(v,m){
   var d=v.replace(/\D/g,"");
@@ -104,74 +101,28 @@ function maskVal(v,m){
   if(m==="cep"){var r=d.slice(0,5);if(d.length>5)r+="-"+d.slice(5,8);return r;}
   return v;
 }
+
 function show(id){document.getElementById(id).style.display="block";}
 function hide(id){document.getElementById(id).style.display="none";}
 
-// ── JSONBin: busca bin pelo nome usando /v3/b?meta=true ──
-async function findBinByName(name){
-  try{
-    var r=await fetch(BASE+"?meta=true",{
-      method:"GET",
-      headers:{"X-Master-Key":API,"X-Bin-Meta":"true"}
-    });
-    if(!r.ok) return null;
-    var d=await r.json();
-    if(!Array.isArray(d)) return null;
-    var found=d.find(function(b){return b.snippetMeta&&b.snippetMeta.name===name;});
-    return found?found.snippetMeta.id:null;
-  }catch(e){console.error("findBin error",e);return null;}
+function saveLocal(key,data){
+  try{localStorage.setItem("form_"+key,JSON.stringify(data));}catch(e){}
 }
 
-async function loadBin(id){
-  try{
-    var r=await fetch(BASE+"/"+id+"/latest",{headers:{"X-Master-Key":API}});
-    if(!r.ok) return null;
-    var d=await r.json();
-    return d.record||null;
-  }catch(e){return null;}
+function loadLocal(key){
+  try{var d=localStorage.getItem("form_"+key);return d?JSON.parse(d):null;}catch(e){return null;}
 }
 
-async function createBin(name,rec){
-  try{
-    var r=await fetch(BASE,{
-      method:"POST",
-      headers:{"Content-Type":"application/json","X-Master-Key":API,"X-Bin-Name":name,"X-Bin-Private":"false"},
-      body:JSON.stringify(rec)
-    });
-    var d=await r.json();
-    return d.metadata?d.metadata.id:null;
-  }catch(e){return null;}
-}
-
-async function updateBin(id,rec){
-  try{
-    await fetch(BASE+"/"+id,{
-      method:"PUT",
-      headers:{"Content-Type":"application/json","X-Master-Key":API},
-      body:JSON.stringify(rec)
-    });
-  }catch(e){console.error("updateBin error",e);}
-}
-
-async function init(){
+function init(){
   var p=new URLSearchParams(window.location.search);
   clientId=(p.get("cliente")||p.get("id")||"").trim();
-  if(!clientId){hide("loading");show("nolink-page");return;}
-
-  var id=await findBinByName(clientId);
-  console.log("BinID encontrado:",id);
-
-  if(id){
-    binId=id;
-    var rec=await loadBin(id);
-    console.log("Record:",rec);
-    if(rec&&rec.filled===true){
-      hide("loading");
-      renderOwner(rec.values,rec.filledAt);
-      return;
-    }
-  }
   hide("loading");
+  if(!clientId){show("nolink-page");return;}
+  var saved=loadLocal(clientId);
+  if(saved&&saved.filled){
+    renderOwner(saved.values,saved.filledAt);
+    return;
+  }
   show("form-page");
   renderStep();
 }
@@ -204,19 +155,10 @@ function nxt(){
 }
 function prv(){var mc=document.getElementById('mc');if(mc)mc.classList.add('out');setTimeout(function(){cur--;renderStep();},200);}
 
-async function save(){
-  var ov=document.createElement('div');ov.className='sov';ov.innerHTML='<div class="spinner"></div>SALVANDO DADOS...';document.body.appendChild(ov);
-  var rec={filled:true,clientId:clientId,filledAt:new Date().toLocaleString('pt-BR'),values:JSON.parse(JSON.stringify(vals))};
-  console.log("Salvando:",rec);
-  try{
-    if(binId){
-      await updateBin(binId,rec);
-    }else{
-      binId=await createBin(clientId,rec);
-      console.log("Novo binId:",binId);
-    }
-  }catch(e){console.error("Erro ao salvar:",e);}
-  document.body.removeChild(ov);
+function save(){
+  var at=new Date().toLocaleString('pt-BR');
+  var rec={filled:true,clientId:clientId,filledAt:at,values:JSON.parse(JSON.stringify(vals))};
+  saveLocal(clientId,rec);
   hide('form-page');
   document.getElementById('thanks-page').innerHTML='<div class="card fade-in" style="text-align:center;max-width:480px;margin:0 auto"><div style="font-size:52px;margin-bottom:16px">🎉</div><h2 style="color:#ff9a4d;font-size:24px;font-weight:400;margin-bottom:12px">Dados enviados!</h2><p style="color:#8a6040;font-size:14px;line-height:1.8;font-family:\'DM Mono\',monospace">Recebemos suas informações com sucesso.<br/>Em breve entraremos em contato<br/>para confirmar seu pedido. 😊</p></div>';
   show('thanks-page');
